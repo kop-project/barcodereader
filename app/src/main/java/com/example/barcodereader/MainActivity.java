@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
 
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(MainActivity.this, "You mast accept", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "You must accept", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
