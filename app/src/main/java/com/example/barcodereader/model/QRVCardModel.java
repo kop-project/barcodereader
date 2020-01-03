@@ -1,8 +1,5 @@
 package com.example.barcodereader.model;
 
-import lombok.Data;
-
-@Data
 public class QRVCardModel {
 
     private String type;
@@ -24,6 +21,16 @@ public class QRVCardModel {
     private String dtStart;
 
     private String dtEnd;
+
+    private String tel;
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
 
     public String getType() {
         return type;
