@@ -9,7 +9,10 @@
         android:id="@+id/zxscan"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/layout_result" />
+        android:layout_above="@+id/layout_result" >
+
+
+    </me.dm7.barcodescanner.zxing.ZXingScannerView>
 
     <LinearLayout
         android:id="@+id/layout_result"
@@ -20,11 +23,18 @@
         android:orientation="vertical"
         android:padding="8dp">
 
+
+        <Button
+            android:id="@+id/start_scanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="scan" />
         <TextView
             android:id="@+id/text_result"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="..."
+
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:gravity="center"
