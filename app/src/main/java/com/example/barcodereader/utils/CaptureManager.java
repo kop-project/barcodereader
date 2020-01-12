@@ -85,6 +85,7 @@ public class CaptureManager {
             beepManager.playBeepSoundAndVibrate();
 
             handler.post(() -> returnResult(result));
+            barcodeView.resume();
         }
 
         @Override
@@ -388,12 +389,12 @@ public class CaptureManager {
 
     protected void closeAndFinish() {
         if (barcodeView.getBarcodeView().isCameraClosed()) {
-            finish();
+           // finish();
         } else {
             finishWhenClosed = true;
         }
 
-        barcodeView.pause();
+        //barcodeView.pause();
         inactivityTimer.cancel();
     }
 

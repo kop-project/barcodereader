@@ -7,6 +7,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -27,6 +29,9 @@ import com.example.barcodereader.activities.ToolbarCaptureActivity;
 import com.example.barcodereader.model.QRURLModel;
 import com.example.barcodereader.model.QRVCardModel;
 import com.example.barcodereader.utils.BarcodeEncoder;
+import com.example.barcodereader.utils.CaptureActivity;
+import com.example.barcodereader.utils.CaptureManager;
+import com.example.barcodereader.utils.DecoratedBarcodeView;
 import com.example.barcodereader.zxing.client.android.Intents;
 import com.example.barcodereader.zxing.integration.android.IntentIntegrator;
 import com.example.barcodereader.zxing.integration.android.IntentResult;
@@ -45,8 +50,80 @@ import java.util.Date;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class MainActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class MainActivity extends AppCompatActivity  {
+    private CaptureManager capture;
+    private DecoratedBarcodeView barcodeScannerView;
+    private Button button;
+    private static boolean status = false;
 
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        MainActivity.status = status;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        barcodeScannerView = initializeContent();
+        button = findViewById(R.id.switch_flashlight);
+        capture = new CaptureManager(this, barcodeScannerView);
+        capture.initializeFromIntent(getIntent(), savedInstanceState);
+    }
+
+    public void sendMessage(View view) {
+        capture.decode();
+    }
+
+    /**
+     * Override to use a different layout.
+     *
+     * @return the DecoratedBarcodeView
+     */
+    protected DecoratedBarcodeView initializeContent() {
+        setContentView(R.layout.zxing_capture);
+        return (DecoratedBarcodeView) findViewById(R.id.zxing_barcode_scanner);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        capture.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        capture.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        capture.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        System.out.println("--------------------------------------------------------LOL-----------------------------------------------");
+        super.onSaveInstanceState(outState);
+        capture.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        capture.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    }
+
+    /*
 
     private ZXingScannerView scannerView;
     private TextView textResult;
@@ -80,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
                     public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
 
                     }
-                }).check();*/
+                }).check();
 
     }
 
@@ -100,9 +177,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
 
     }
 
-    /**
-     * Sample of scanning from a Fragment
-     */
+
     public static class ScanFragment extends Fragment {
         private String toast;
 
@@ -258,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         fos.flush();
         fos.close();
         refreshGallery(new_file);
-    }*/
+    }
 
     public void refreshGallery(File file) {
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -278,6 +353,6 @@ public class MainActivity extends AppCompatActivity implements ZXingScannerView.
         String formattedDate = df.format(c.getTime());
         return formattedDate;
     }
-
+*/
 
 }

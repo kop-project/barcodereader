@@ -45,7 +45,6 @@ public class CustomScannerActivity extends Activity implements
 
         capture = new CaptureManager(this, barcodeScannerView);
         capture.initializeFromIntent(getIntent(), savedInstanceState);
-        capture.decode();
 
         changeMaskColor(null);
         changeLaserVisibility(true);
@@ -109,5 +108,10 @@ public class CustomScannerActivity extends Activity implements
     @Override
     public void onTorchOff() {
         switchFlashlightButton.setText("SCAN");
+    }
+
+    public void scanBarcode(View view) {
+        capture.decode();
+
     }
 }
