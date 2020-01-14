@@ -64,13 +64,12 @@ public class CaptureManager {
     private DecoratedBarcodeView barcodeView;
     private int orientationLock = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private static final String SAVED_ORIENTATION_LOCK = "SAVED_ORIENTATION_LOCK";
-    private boolean returnBarcodeImagePath = false;
+    private boolean returnBarcodeImagePath = true;
 
     private boolean destroyed = false;
 
     private InactivityTimer inactivityTimer;
     private BeepManager beepManager;
-    private String fileName;
     private Handler handler;
 
     private boolean finishWhenClosed = false;
@@ -78,6 +77,10 @@ public class CaptureManager {
     private BarcodeCallback callback = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
+            if (result == null) {
+                makePhoto();
+                return;
+            }
             barcodeView.pause();
             beepManager.playBeepSoundAndVibrate();
 
@@ -87,6 +90,7 @@ public class CaptureManager {
 
         @Override
         public void possibleResultPoints(List<ResultPoint> resultPoints) {
+            barcodeResult(null);
         }
     };
 
@@ -346,38 +350,10 @@ public class CaptureManager {
      */
     private String getBarcodeImagePath(BarcodeResult rawResult) {
 
-        String barcodeImagePath = null;
-        Bitmap bmp;
-        File new_file = null;
         if (returnBarcodeImagePath) {
-            bmp = rawResult.getBitmap();
-            try {
-                FileOutputStream fos = null;
-                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "ImageDemo");
-                if (!file.exists() && !file.mkdirs()) {
-                    //Toast.makeText(this, "Can't create directory to store image", Toast.LENGTH_LONG).show();
-                    //return;
-                    System.out.println("file not created");
-
-                }
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmsshhmmss");
-                String date = simpleDateFormat.format(new Date());
-                String name = "FileName" + date + ".jpg";
-                String file_name = file.getAbsolutePath() + "/" + name;
-                new_file = new File(file_name);
-                System.out.println("new_file created");
-                fos = new FileOutputStream(new_file);
-                bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-
-                fos.flush();
-                fos.close();
-            } catch (IOException e) {
-                Log.w(TAG, "Unable to create temporary file and store bitmap! " + e);
-            }
-            return new_file.getAbsolutePath();
+            return getImage(rawResult.getBitmap()).getAbsolutePath();
         }
-
-      return null;
+        return null;
     }
 
     private void finish() {
@@ -415,28 +391,53 @@ public class CaptureManager {
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        //builder.setTitle(activity.getString(R.string.zxing_app_name));
-        //builder.setMessage(activity.getString(R.string.zxing_msg_camera_framework_bug));
-        /*builder.setPositiveButton(R.string.zxing_button_ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                finish();
-            }
-        });
-        builder.show();*/
+
     }
 
-    public static int getCameraPermissionReqCode() {
-        return cameraPermissionReqCode;
+    private void makePhoto() {
+        barcodeView.getBarcodeView().getCameraInstance().requestPreview(new PreviewCallback() {
+            @Override
+            public void onPreview(SourceData sourceData) {
+                sourceData.setCropRect(new Rect(0, 0, 1080, 1920));
+                Bitmap bmp = sourceData.getBitmap();
+                getImage(bmp);
+            }
+
+            @Override
+            public void onPreviewError(Exception e) {
+                System.out.println("ERROR");
+            }
+
+        });
+
     }
 
-    public static void setCameraPermissionReqCode(int cameraPermissionReqCode) {
-        CaptureManager.cameraPermissionReqCode = cameraPermissionReqCode;
+    private File getImage(Bitmap bitmap) {
+        File new_file = null;
+        try {
+            FileOutputStream fos = null;
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "ImageDemo");
+            if (!file.exists() && !file.mkdirs()) {
+                //Toast.makeText(this, "Can't create directory to store image", Toast.LENGTH_LONG).show();
+                //return;
+                System.out.println("file not created");
+
+            }
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmsshhmmss");
+            String date = simpleDateFormat.format(new Date());
+            String name = "FileName" + date + ".jpg";
+            String file_name = file.getAbsolutePath() + "/" + name;
+            new_file = new File(file_name);
+            System.out.println("new_file created");
+            fos = new FileOutputStream(new_file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            Log.w(TAG, "Unable to create temporary file and store bitmap! " + e);
+        }
+        return new_file;
     }
+
 }
