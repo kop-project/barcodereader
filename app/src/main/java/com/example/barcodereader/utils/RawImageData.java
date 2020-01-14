@@ -77,7 +77,6 @@ public class RawImageData {
     }
 
     /**
-     * Rotate an image by 90 degrees CW.
      *
      * @param data        the image data, in with the first width * height bytes being the luminance data.
      * @param imageWidth  the width of the image
@@ -85,8 +84,6 @@ public class RawImageData {
      * @return the rotated bytes
      */
     public static byte[] rotateCW(byte[] data, int imageWidth, int imageHeight) {
-        // Adapted from http://stackoverflow.com/a/15775173
-        // data may contain more than just y (u and v), but we are only interested in the y section.
 
         byte[] yuv = new byte[imageWidth * imageHeight];
         int i = 0;

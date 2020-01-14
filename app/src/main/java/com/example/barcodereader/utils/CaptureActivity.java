@@ -12,7 +12,7 @@ import com.example.barcodereader.R;
 
 
 /**
- *
+ * class, which describe
  */
 public class CaptureActivity extends Activity {
     private CaptureManager capture;

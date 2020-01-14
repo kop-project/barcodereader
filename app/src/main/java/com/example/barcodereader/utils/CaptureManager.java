@@ -4,18 +4,12 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-
-import com.example.barcodereader.R;
-import com.example.barcodereader.zxing.client.android.BeepManager;
-import com.example.barcodereader.zxing.client.android.InactivityTimer;
-import com.example.barcodereader.zxing.client.android.Intents;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,10 +23,13 @@ import android.view.WindowManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.barcodereader.CustomScannerActivity;
+import com.example.barcodereader.camera.PreviewCallback;
+import com.example.barcodereader.zxing.client.android.BeepManager;
+import com.example.barcodereader.zxing.client.android.InactivityTimer;
+import com.example.barcodereader.zxing.client.android.Intents;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
-
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,13 +64,13 @@ public class CaptureManager {
     private DecoratedBarcodeView barcodeView;
     private int orientationLock = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private static final String SAVED_ORIENTATION_LOCK = "SAVED_ORIENTATION_LOCK";
-    private boolean returnBarcodeImagePath = true;
+    private boolean returnBarcodeImagePath = false;
 
     private boolean destroyed = false;
 
     private InactivityTimer inactivityTimer;
     private BeepManager beepManager;
-
+    private String fileName;
     private Handler handler;
 
     private boolean finishWhenClosed = false;
@@ -90,7 +87,6 @@ public class CaptureManager {
 
         @Override
         public void possibleResultPoints(List<ResultPoint> resultPoints) {
-
         }
     };
 
@@ -258,7 +254,7 @@ public class CaptureManager {
      *                     which is either {@link PackageManager#PERMISSION_GRANTED}
      *                     or {@link PackageManager#PERMISSION_DENIED}. Never null.
      */
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == cameraPermissionReqCode) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
@@ -378,9 +374,10 @@ public class CaptureManager {
             } catch (IOException e) {
                 Log.w(TAG, "Unable to create temporary file and store bitmap! " + e);
             }
+            return new_file.getAbsolutePath();
         }
 
-        return new_file.getAbsolutePath();
+      return null;
     }
 
     private void finish() {
@@ -389,7 +386,7 @@ public class CaptureManager {
 
     protected void closeAndFinish() {
         if (barcodeView.getBarcodeView().isCameraClosed()) {
-           // finish();
+            // finish();
         } else {
             finishWhenClosed = true;
         }
@@ -408,6 +405,8 @@ public class CaptureManager {
     protected void returnResult(BarcodeResult rawResult) {
         Intent intent = resultIntent(rawResult, getBarcodeImagePath(rawResult));
         activity.setResult(Activity.RESULT_OK, intent);
+        CustomScannerActivity customScannerActivity = (CustomScannerActivity) activity;
+        customScannerActivity.setTextView(rawResult.getText());
         closeAndFinish();
     }
 

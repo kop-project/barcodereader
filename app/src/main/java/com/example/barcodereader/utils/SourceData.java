@@ -84,7 +84,6 @@ public class SourceData {
     }
 
     /**
-     *
      * @return width of the data
      */
     public int getDataWidth() {
@@ -92,7 +91,6 @@ public class SourceData {
     }
 
     /**
-     *
      * @return height of the data
      */
     public int getDataHeight() {
@@ -155,7 +153,6 @@ public class SourceData {
             cropRect = new Rect(cropRect.top, cropRect.left, cropRect.bottom, cropRect.right);
         }
 
-        // TODO: there should be a way to do this without JPEG compression / decompression cycle.
         YuvImage img = new YuvImage(data.getData(), imageFormat, data.getWidth(), data.getHeight(), null);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         img.compressToJpeg(cropRect, 90, buffer);
